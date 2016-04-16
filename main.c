@@ -9,6 +9,7 @@
 // FUSE   : HIGH 0xFF, LOW 0x6A
 //------------------------------------------------------------
 #include <avr/io.h>
+#include <avr/wdt.h>
 #include "dlink.h"
 
 #define VER 0b0000 // バージョン
@@ -30,10 +31,14 @@ int main(void)
   DDRB = 0x00;
   dlink_init();
 
+  // ウォッチドッグタイマ設定
+  wdt_enable(WDTO_1S);
+
   while (1) {
     // スイッチが押されるまで待機
     while ((PINB & (1<<SWITCH_PIN)) != 0) {
       count++;
+      wdt_reset();
     }
     // デジモンの種類をランダムに設定(値は3〜14)
     pos = (count % 12) + 3;
